@@ -24,7 +24,7 @@ type (
 )
 
 var (
-	mutex sync.Mutex
+	mutex sync.RWMutex
 )
 
 func (c *userRequest) Bind(r *http.Request) error { return nil }
@@ -34,6 +34,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showUsers(w http.ResponseWriter, r *http.Request) {
+	mutex.RLock()
+	defer mutex.RUnlock()
+
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
 		app.serverError(w, err)
@@ -51,6 +54,9 @@ func (app *application) showUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) getUser(w http.ResponseWriter, r *http.Request) {
+	mutex.RLock()
+	defer mutex.RUnlock()
+
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
 		app.serverError(w, err)
