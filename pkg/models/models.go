@@ -1,7 +1,6 @@
 package models
 
 import (
-	"sync"
 	"time"
 )
 
@@ -13,7 +12,6 @@ type (
 	}
 
 	UserStore struct {
-		sync.Mutex
 		UserId int             `json:"userId"`
 		List   map[string]User `json:"list"`
 	}

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"refactoring/pkg/models"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -20,6 +21,10 @@ type (
 		DisplayName string `json:"display_name"`
 		Email       string `json:"email"`
 	}
+)
+
+var (
+	mutex sync.Mutex
 )
 
 func (c *userRequest) Bind(r *http.Request) error { return nil }
@@ -73,6 +78,8 @@ func (app *application) getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
@@ -126,6 +133,8 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
@@ -180,6 +189,8 @@ func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) deleteUser(w http.ResponseWriter, r *http.Request) {
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
