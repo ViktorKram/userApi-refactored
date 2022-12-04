@@ -21,6 +21,7 @@ type (
 )
 
 var (
+	calldepth       = 2
 	ErrUserNotFound = errors.New("user_not_found")
 )
 
@@ -40,7 +41,10 @@ func badRequestError(err error) render.Renderer {
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	app.errorLog.Output(2, trace)
+	err = app.errorLog.Output(calldepth, trace)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }

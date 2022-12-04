@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"refactoring/pkg/models"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -23,19 +22,22 @@ type (
 	}
 )
 
-var (
-	mutex sync.RWMutex
-)
+// var (
+// 	mutex sync.RWMutex
+// )
 
 func (c *userRequest) Bind(r *http.Request) error { return nil }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(time.Now().String()))
+	_, err := w.Write([]byte(time.Now().String()))
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
 func (app *application) showUsers(w http.ResponseWriter, r *http.Request) {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	app.mutex.RLock()
+	defer app.mutex.RUnlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
@@ -54,8 +56,8 @@ func (app *application) showUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) getUser(w http.ResponseWriter, r *http.Request) {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	app.mutex.RLock()
+	defer app.mutex.RUnlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
@@ -84,8 +86,8 @@ func (app *application) getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
@@ -139,8 +141,8 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
@@ -195,8 +197,8 @@ func (app *application) updateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) deleteUser(w http.ResponseWriter, r *http.Request) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
 
 	file, err := ioutil.ReadFile(users)
 	if err != nil {
